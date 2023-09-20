@@ -11,11 +11,15 @@ def apply():
     h1, s1, v1 = int(spinbox1.get()), int(spinbox2.get()), int(spinbox3.get())
 
     h, s, v = cv2.split(hsv_img)
+    print(np.amax(h))
     h2 = h
     s2 = s
     v2 = v
 
-    h2 = h + h1
+    if (h1 >= 0):
+        h2 = np.where(h <= 179 - h1, h + h1, 179)
+    else:
+        h2 = np.where(h >= -h1, h + h1, 0)
 
     if (s1 >= 0):
         s2 = np.where(s <= 255 - s1, s + s1, 255)
