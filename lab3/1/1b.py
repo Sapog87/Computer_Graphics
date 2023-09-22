@@ -30,7 +30,7 @@ def flood_fill(image, x, y, target_image, target_color):
     for i in range(left_x + 1, right_x):
         flood_fill(image, i, y + 1, target_image, target_color)
 
-prev_x, prev_y = None, None
+prev_x, prev_y, start_x, start_y = None, None, None, None
 
 def main():
 
@@ -69,8 +69,22 @@ def main():
     root.mainloop()
 
 
-    start_x = 200
-    start_y = 200
+    root = tk.Tk()
+    canvas = tk.Canvas(root, width=image.width, height=image.height)
+    im0 = ImageTk.PhotoImage(Image.open('image_1bb.png'))
+
+    def point(event):
+        global start_x, start_y
+        start_x, start_y = int(event.x), int(event.y)
+        root.quit()
+        root.destroy()
+
+    canvas.bind("<Button-1>", point)
+    canvas.create_image(200, 200, image=im0)
+    canvas.pack()
+
+    root.mainloop()
+
 
     image = Image.open('image_1bb.png')
     target_image = Image.open('input_image.png')
