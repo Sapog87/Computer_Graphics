@@ -19,6 +19,7 @@ def find_boundary(image, start_x, start_y, boundary_color):
 
     q = Queue()
     q.put((start_x, start_y))
+    inner_color = pixels[start_x, start_y]
 
     while not q.empty():
         current_x, current_y = q.get()
@@ -41,7 +42,7 @@ def find_boundary(image, start_x, start_y, boundary_color):
             if pixels[lx, ly] == boundary_color:
                 has_neighbors = False
                 for j in range(0,7,2):
-                    has_neighbors = has_neighbors or pixels[lx + directions[j][0], ly + directions[j][1]] == (255,255,255)
+                    has_neighbors = has_neighbors or pixels[lx + directions[j][0], ly + directions[j][1]] != (0,255,0) and pixels[lx + directions[j][0], ly + directions[j][1]] != inner_color
 
                 if not has_neighbors:
                     continue
