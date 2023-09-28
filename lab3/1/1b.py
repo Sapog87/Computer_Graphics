@@ -1,6 +1,8 @@
 from PIL import Image, ImageDraw, ImageTk
 import tkinter as tk
 
+x_offset , y_offset = None, None
+
 def flood_fill(image, x, y, target_image, target_color):
     width, height = image.size
     pixels = image.load()
@@ -22,8 +24,14 @@ def flood_fill(image, x, y, target_image, target_color):
     while right_x < width - 1 and pixels[right_x + 1, y] == target_color:
         right_x += 1
 
+    global x_offset, y_offset
+    if x_offset == None:
+        x_offset = x % target_image_width
+    if y_offset == None:
+        y_offset = y % target_image_height
+
     for i in range(left_x, right_x + 1):
-        pixels[i, y] = target_pixels[i % target_image_width, y % target_image_height]
+        pixels[i, y] = target_pixels[abs(i - x_offset) % target_image_width, abs(y - y_offset) % target_image_height]
 
     for i in range(left_x + 1, right_x):
         flood_fill(image, i, y - 1, target_image, target_color)
@@ -59,7 +67,6 @@ def main():
 
     def save_image():
         image.save('image_1bb.png')
-        print("Изображение сохранено как output_image.png")
         root.quit()
         root.destroy()
 

@@ -55,16 +55,16 @@ def start_outline(x, y, pixels, size):
     inner_color = pixels[x, y]
     while x != size[0]:
         if pixels[x, y] != inner_color:
-            return (x - 1, y)
+            return (x - 1, y), inner_color
         x += 1
     return None
 
 def main():
     image = Image.open('image_1c.png')
 
-    start_x, start_y = start_outline(250, 250, image.load(), image.size)
+    (start_x, start_y), boundary_color = start_outline(350, 250, image.load(), image.size)
 
-    boundary = find_boundary(image, start_x, start_y, (255,0,0))
+    boundary = find_boundary(image, start_x, start_y, boundary_color)
 
     draw = ImageDraw.Draw(image)
     for x, y in boundary:
