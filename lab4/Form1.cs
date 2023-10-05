@@ -80,6 +80,32 @@ namespace lab4
             else if (pointRadioButton.Checked)
             {
                 pointLocation = e.Location;
+
+                if (polygon.Count != 0)
+                {
+                    string isPointInPolygon = IsPointInPolygon(pointLocation, polygon).ToString();
+                    if (IsConvexPolygon(polygon))
+                    {
+                        belongsToConvex.Text = isPointInPolygon;
+                        belongsToNConvex.Text = string.Empty;
+                    }
+                    else
+                    {
+                        belongsToConvex.Text = string.Empty;
+                        belongsToNConvex.Text = isPointInPolygon;
+                    }
+                }
+
+                try
+                {
+                    Segment segment = segments.Single();
+                    relativePointPosition.Text =
+                        PointPositionRelativeToSegment(segment.left, segment.right, pointLocation);
+                }
+                catch
+                {
+                    relativePointPosition.Text = "На рисунке должен быть только один отрезок";
+                }
             }
             pictureBox.Invalidate();
         }
@@ -334,7 +360,127 @@ namespace lab4
 
         private void findIntersectionsButton_Click(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            if (segments.Count == 2)
+            {
+                float x1 = segments[0].left.X;
+                float y1 = segments[0].left.Y;
+                float x2 = segments[0].right.X;
+                float y2 = segments[0].right.Y;
+                float x3 = segments[1].left.X;
+                float y3 = segments[1].left.Y;
+                float x4 = segments[1].right.X;
+                float y4 = segments[1].right.Y;
+
+                float denominator = ((x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4));
+                if (denominator == 0)
+                {
+                    intersectionLabel.Text = "Прямые параллельны или совпадают";
+                }
+                else
+                {
+                    float x = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / denominator;
+                    float y = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / denominator;
+
+                    intersectionLabel.Text = $"Точка пересения: ({Math.Round(x)}, {Math.Round(y)})";
+                }
+            }
+            else
+            {
+                intersectionLabel.Text = "Количество отрезков не равно 2";
+            }
+        }
+
+        private bool IsConvexPolygon(List<PointF> vertices)
+        {
+            if (vertices.Count < 3)
+            {
+                return false;
+            }
+
+            bool isClockwise = false;
+            for (int i = 0; i < 3; i++)
+            {
+                int j = (i + 1) % vertices.Count;
+                int k = (i + 2) % vertices.Count;
+
+                float crossProductZ = (vertices[j].X - vertices[i].X) * (vertices[k].Y - vertices[j].Y) -
+                                      (vertices[j].Y - vertices[i].Y) * (vertices[k].X - vertices[j].X);
+
+                if (i == 0)
+                {
+                    // Определение направления обхода вершин
+                    float crossProduct = crossProductZ;
+                    isClockwise = crossProductZ > 0;
+                }
+
+                if ((crossProductZ > 0) != isClockwise)
+                {
+                    return false;
+                }
+            }
+
+            // Проверка оставшихся вершин
+            for (int i = 3; i < vertices.Count; i++)
+            {
+                int j = (i + 1) % vertices.Count;
+                int k = (i + 2) % vertices.Count;
+
+                float crossProductZ = (vertices[j].X - vertices[i].X) * (vertices[k].Y - vertices[j].Y) -
+                                      (vertices[j].Y - vertices[i].Y) * (vertices[k].X - vertices[j].X);
+
+                if ((crossProductZ > 0) != isClockwise)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        private bool IsPointInPolygon(PointF point, List<PointF> vertices)
+        {
+            // Проверка количества вершин
+            if (vertices.Count < 3)
+            {
+                return false;
+            }
+
+            bool isInside = false;
+
+            int j = vertices.Count - 1;
+            for (int i = 0; i < vertices.Count; i++)
+            {
+                if (vertices[i].Y < point.Y && vertices[j].Y >= point.Y ||
+                    vertices[j].Y < point.Y && vertices[i].Y >= point.Y)
+                {
+                    if (vertices[i].X + (point.Y - vertices[i].Y) / (vertices[j].Y - vertices[i].Y) * (vertices[j].X - vertices[i].X) < point.X)
+                    {
+                        isInside = !isInside;
+                    }
+                }
+
+                j = i;
+            }
+
+            return isInside;
+        }
+        private string PointPositionRelativeToSegment(PointF p1, PointF p2, PointF targetPoint)
+        {
+            //p1.X = (float)Math.Round(p1.X);
+            //p1.Y = (float)Math.Round(p1.Y);
+            //p2.X = (float)Math.Round(p2.X);
+            //p2.Y = (float)Math.Round(p2.Y);
+            //targetPoint.X = (float)Math.Round(targetPoint.X);
+            //targetPoint.Y = (float)Math.Round(targetPoint.Y);
+
+            float D = (targetPoint.X - p1.X) * (p2.Y - p1.Y) - (targetPoint.Y - p1.Y) * (p2.X - p1.X);
+            if (D == 0)
+                return "на прямой";
+            else if (D < 0)
+                return "слева";
+            else if (D > 0)
+                return "справа";
+            else
+                throw new Exception();
         }
     }
 }

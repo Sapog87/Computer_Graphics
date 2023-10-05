@@ -51,6 +51,13 @@
             findIntersectionsLabel = new Label();
             findIntersectionsButton = new Button();
             pictureBox = new PictureBox();
+            intersectionLabel = new Label();
+            pointInfo = new Label();
+            label1 = new Label();
+            belongsToConvex = new Label();
+            belongsToNConvex = new Label();
+            label2 = new Label();
+            relativePointPosition = new Label();
             ((System.ComponentModel.ISupportInitialize)movePolygonNumericUpDownX).BeginInit();
             ((System.ComponentModel.ISupportInitialize)movePolygonNumericUpDownY).BeginInit();
             ((System.ComponentModel.ISupportInitialize)rotatePolygonNumericUpDownAngle).BeginInit();
@@ -123,22 +130,18 @@
             // movePolygonNumericUpDownX
             // 
             movePolygonNumericUpDownX.Location = new Point(100, 28);
+            movePolygonNumericUpDownX.Minimum = new decimal(new int[] { 100, 0, 0, int.MinValue });
             movePolygonNumericUpDownX.Name = "movePolygonNumericUpDownX";
             movePolygonNumericUpDownX.Size = new Size(75, 23);
             movePolygonNumericUpDownX.TabIndex = 23;
-            movePolygonNumericUpDownX.Value = 0;
-            movePolygonNumericUpDownX.Minimum = Convert.ToDecimal(-100);
-            movePolygonNumericUpDownX.Maximum = Convert.ToDecimal(100);
             // 
             // movePolygonNumericUpDownY
             // 
             movePolygonNumericUpDownY.Location = new Point(100, 57);
+            movePolygonNumericUpDownY.Minimum = new decimal(new int[] { 100, 0, 0, int.MinValue });
             movePolygonNumericUpDownY.Name = "movePolygonNumericUpDownY";
             movePolygonNumericUpDownY.Size = new Size(75, 23);
             movePolygonNumericUpDownY.TabIndex = 24;
-            movePolygonNumericUpDownY.Value = 0;
-            movePolygonNumericUpDownY.Minimum = Convert.ToDecimal(-100);
-            movePolygonNumericUpDownY.Maximum = Convert.ToDecimal(100);
             // 
             // movePolygonButton
             // 
@@ -191,11 +194,11 @@
             // rotatePolygonNumericUpDownAngle
             // 
             rotatePolygonNumericUpDownAngle.Location = new Point(229, 48);
+            rotatePolygonNumericUpDownAngle.Maximum = new decimal(new int[] { 360, 0, 0, 0 });
+            rotatePolygonNumericUpDownAngle.Minimum = new decimal(new int[] { 360, 0, 0, int.MinValue });
             rotatePolygonNumericUpDownAngle.Name = "rotatePolygonNumericUpDownAngle";
             rotatePolygonNumericUpDownAngle.Size = new Size(75, 23);
             rotatePolygonNumericUpDownAngle.TabIndex = 27;
-            rotatePolygonNumericUpDownAngle.Maximum = Convert.ToDecimal(360);
-            rotatePolygonNumericUpDownAngle.Minimum = Convert.ToDecimal(-360);
             // 
             // rotatePolygonButton
             // 
@@ -211,7 +214,7 @@
             // 
             scalePolygonButton.Location = new Point(346, 111);
             scalePolygonButton.Name = "scalePolygonButton";
-            scalePolygonButton.Size = new Size(75, 23);
+            scalePolygonButton.Size = new Size(116, 23);
             scalePolygonButton.TabIndex = 17;
             scalePolygonButton.Text = "Масштабировать";
             scalePolygonButton.UseVisualStyleBackColor = true;
@@ -239,22 +242,22 @@
             // scalePolygonNumericUpDownX
             // 
             scalePolygonNumericUpDownX.Location = new Point(348, 81);
+            scalePolygonNumericUpDownX.Maximum = new decimal(new int[] { 2, 0, 0, 0 });
+            scalePolygonNumericUpDownX.Minimum = new decimal(new int[] { 2, 0, 0, int.MinValue });
             scalePolygonNumericUpDownX.Name = "scalePolygonNumericUpDownX";
             scalePolygonNumericUpDownX.Size = new Size(75, 23);
             scalePolygonNumericUpDownX.TabIndex = 26;
-            scalePolygonNumericUpDownX.Value = 1;
-            scalePolygonNumericUpDownX.Maximum = Convert.ToDecimal(2);
-            scalePolygonNumericUpDownX.Minimum = Convert.ToDecimal(-2);
+            scalePolygonNumericUpDownX.Value = new decimal(new int[] { 1, 0, 0, 0 });
             // 
             // scalePolygonNumericUpDownY
             // 
             scalePolygonNumericUpDownY.Location = new Point(348, 52);
+            scalePolygonNumericUpDownY.Maximum = new decimal(new int[] { 2, 0, 0, 0 });
+            scalePolygonNumericUpDownY.Minimum = new decimal(new int[] { 2, 0, 0, int.MinValue });
             scalePolygonNumericUpDownY.Name = "scalePolygonNumericUpDownY";
             scalePolygonNumericUpDownY.Size = new Size(75, 23);
             scalePolygonNumericUpDownY.TabIndex = 25;
-            scalePolygonNumericUpDownY.Value = 1;
-            scalePolygonNumericUpDownY.Maximum = Convert.ToDecimal(2);
-            scalePolygonNumericUpDownY.Minimum = Convert.ToDecimal(-2);
+            scalePolygonNumericUpDownY.Value = new decimal(new int[] { 1, 0, 0, 0 });
             // 
             // findIntersectionsLabel
             // 
@@ -287,11 +290,77 @@
             pictureBox.MouseMove += PictureBox_MouseMove;
             pictureBox.MouseUp += PictureBox_MouseUp;
             // 
+            // intersectionLabel
+            // 
+            intersectionLabel.AutoSize = true;
+            intersectionLabel.Location = new Point(123, 191);
+            intersectionLabel.Name = "intersectionLabel";
+            intersectionLabel.Size = new Size(0, 15);
+            intersectionLabel.TabIndex = 28;
+            // 
+            // pointInfo
+            // 
+            pointInfo.AutoSize = true;
+            pointInfo.Location = new Point(346, 146);
+            pointInfo.Name = "pointInfo";
+            pointInfo.Size = new Size(280, 15);
+            pointInfo.TabIndex = 29;
+            pointInfo.Text = "Точка принадлежит выпуклому многоугольнику:";
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(346, 169);
+            label1.Name = "label1";
+            label1.Size = new Size(293, 15);
+            label1.TabIndex = 30;
+            label1.Text = "Точка принадлежит невыпуклому многоугольнику:";
+            // 
+            // belongsToConvex
+            // 
+            belongsToConvex.AutoSize = true;
+            belongsToConvex.Location = new Point(639, 146);
+            belongsToConvex.Name = "belongsToConvex";
+            belongsToConvex.Size = new Size(0, 15);
+            belongsToConvex.TabIndex = 31;
+            // 
+            // belongsToNConvex
+            // 
+            belongsToNConvex.AutoSize = true;
+            belongsToNConvex.Location = new Point(645, 169);
+            belongsToNConvex.Name = "belongsToNConvex";
+            belongsToNConvex.Size = new Size(0, 15);
+            belongsToNConvex.TabIndex = 32;
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Location = new Point(346, 191);
+            label2.Name = "label2";
+            label2.Size = new Size(252, 15);
+            label2.TabIndex = 33;
+            label2.Text = "Расположение точки относительно отрезка:";
+            // 
+            // relativePointPosition
+            // 
+            relativePointPosition.AutoSize = true;
+            relativePointPosition.Location = new Point(639, 191);
+            relativePointPosition.Name = "relativePointPosition";
+            relativePointPosition.Size = new Size(0, 15);
+            relativePointPosition.TabIndex = 34;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1129, 687);
+            Controls.Add(relativePointPosition);
+            Controls.Add(label2);
+            Controls.Add(belongsToNConvex);
+            Controls.Add(belongsToConvex);
+            Controls.Add(label1);
+            Controls.Add(pointInfo);
+            Controls.Add(intersectionLabel);
             Controls.Add(rotatePolygonNumericUpDownAngle);
             Controls.Add(scalePolygonNumericUpDownX);
             Controls.Add(scalePolygonNumericUpDownY);
@@ -352,5 +421,12 @@
         private NumericUpDown scalePolygonNumericUpDownX;
         private NumericUpDown scalePolygonNumericUpDownY;
         private NumericUpDown rotatePolygonNumericUpDownAngle;
+        private Label intersectionLabel;
+        private Label pointInfo;
+        private Label label1;
+        private Label belongsToConvex;
+        private Label belongsToNConvex;
+        private Label label2;
+        private Label relativePointPosition;
     }
 }
