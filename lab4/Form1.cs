@@ -465,16 +465,9 @@ namespace lab4
         }
         private string PointPositionRelativeToSegment(PointF p1, PointF p2, PointF targetPoint)
         {
-            //p1.X = (float)Math.Round(p1.X);
-            //p1.Y = (float)Math.Round(p1.Y);
-            //p2.X = (float)Math.Round(p2.X);
-            //p2.Y = (float)Math.Round(p2.Y);
-            //targetPoint.X = (float)Math.Round(targetPoint.X);
-            //targetPoint.Y = (float)Math.Round(targetPoint.Y);
-
             float D = (targetPoint.X - p1.X) * (p2.Y - p1.Y) - (targetPoint.Y - p1.Y) * (p2.X - p1.X);
-            if (D == 0)
-                return "на прямой";
+            if (Math.Abs(D) < 500)
+                return "на прямой, содержащей отрезок";
             else if (D < 0)
                 return "слева";
             else if (D > 0)
