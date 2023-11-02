@@ -10,7 +10,7 @@ class BezierCurve:
         self.curves = []
 
         self.canvas.bind("<Button-1>", self.add_point)
-        self.canvas.bind("<B1-Motion>", self.move_point)
+        self.canvas.bind("<B2-Motion>", self.move_point)
         self.canvas.bind("<Button-3>", self.delete_point)
 
         self.root.mainloop()
@@ -27,7 +27,7 @@ class BezierCurve:
             )
 
             if len(self.points) > 3:
-                self.draw_curve()
+                self.draw_curve()    
 
     def move_point(self, event):
         x, y = event.x, event.y
@@ -35,8 +35,9 @@ class BezierCurve:
         self.canvas.move(CURRENT, x - prev_x, y - prev_y)
         self.points[-1] = (x, y)
 
-        if len(self.points) > 3:
-            self.draw_curve()
+        if len(self.points) > 3:            
+            self.delete_point(event)
+            self.add_point(event)
 
     def delete_point(self, event):
         x, y = event.x, event.y
