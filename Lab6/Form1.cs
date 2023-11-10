@@ -2,6 +2,13 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Runtime.Serialization.Formatters;
+using System.Text.Json;
+using System.Diagnostics;
+using Microsoft.VisualBasic;
+using AngouriMath;
+using AngouriMath.Extensions;
+using System.Reflection;
 
 namespace Lab6
 {
@@ -9,7 +16,7 @@ namespace Lab6
     {
         private Graphics g;
         private Bitmap bmp;
-        private Primitive currentPolyhedron;
+        private Polyhedron currentPolyhedron;
         private Dictionary<string, Transformation> projections = new Dictionary<string, Transformation>
         {
             {"Perspective",     Transformation.PerspectiveProjection()   },
@@ -30,6 +37,7 @@ namespace Lab6
             PrimitiveComboBox.SelectedItem = PrimitiveComboBox.Items[1];
             ReflectionComboBox.SelectedItem = ReflectionComboBox.Items[0];
             PerspectiveComboBox.SelectedItem = PerspectiveComboBox.Items[1];
+            AxisComboBox.SelectedItem = AxisComboBox.Items[0];
 
             GetPrimitive();
             DrawAxis(g, GetProjection(), Box.Width, Box.Height);
@@ -46,17 +54,17 @@ namespace Lab6
             {
                 case "Tetrahedron":
                     {
-                        currentPolyhedron = PrimitiveFactory.Tetrahedron();
+                        currentPolyhedron = PolyhedronFactory.Tetrahedron(0.5);
                         break;
                     }
                 case "Hexahedron":
                     {
-                        currentPolyhedron = PrimitiveFactory.Hexahedron();
+                        currentPolyhedron = PolyhedronFactory.Hexahedron(0.5);
                         break;
                     }
                 case "Octahedron":
                     {
-                        currentPolyhedron = PrimitiveFactory.Octahedron();
+                        currentPolyhedron = PolyhedronFactory.Octahedron(0.5);
                         break;
                     }
                 default:
@@ -75,16 +83,17 @@ namespace Lab6
                 new Point(0, 0, 1)
             };
 
-            List<Primitive> primitives = new List<Primitive>
+            List<Line> lines = new List<Line>
             {
                 new Line(points[0], points[1]),
                 new Line(points[0], points[2]),
-                new Line(points[0], points[3]),
-                currentPolyhedron
+                new Line(points[0], points[3])
             };
 
-            foreach (Primitive p in primitives)
+            foreach (Line p in lines)
                 p.Draw(g, t, width, height);
+
+            currentPolyhedron.Draw(g, t, width, height);
         }
 
         private void Clear()
@@ -203,6 +212,161 @@ namespace Lab6
         {
             Clear();
             RotateAroundLine();
+            DrawAxis(g, GetProjection(), Box.Width, Box.Height);
+        }
+
+        private void SaveButton_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog saveDialog = new SaveFileDialog();
+            saveDialog.Filter = "Object Files(*.obj)| *.obj | Text files(*.txt) | *.txt | All files(*.*) | *.* ";
+            if (saveDialog.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    string info = "";
+                    info += currentPolyhedron.ToString() + "\n";
+                    info += currentPolyhedron.Points.Count + "\n";
+                    info += currentPolyhedron.Polygons.Count + "\n";
+
+                    foreach (Point point in currentPolyhedron.Points)
+                    {
+                        info += point.X + " " + point.Y + " " + point.Z + "\n";
+                    }
+
+                    foreach (Polygon polygon in currentPolyhedron.Polygons)
+                    {
+                        foreach (Point point in polygon.Points)
+                        {
+                            int index = currentPolyhedron.Points.FindIndex(x => x.Equals(point));
+                            info += index + " ";
+                        }
+                        info += "\n";
+                    }
+
+                    File.WriteAllText(saveDialog.FileName, info);
+                }
+                catch
+                {
+                    DialogResult rezult = MessageBox.Show("Невозможно сохранить файл",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void UploadButton_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog loadDialog = new OpenFileDialog();
+            loadDialog.Filter = "Object Files(*.obj)|*.obj|Text files (*.txt)|*.txt|All files (*.*)|*.*";
+            if (loadDialog.ShowDialog() == DialogResult.OK)
+            {
+                Debug.WriteLine(loadDialog.FileName);
+                try
+                {
+                    Clear();
+                    List<Point> points = new List<Point>();
+                    List<Polygon> polygons = new List<Polygon>();
+
+                    string[] info = File.ReadAllText(loadDialog.FileName).Split("\n");
+
+                    string type_of_primitive = info[0];
+                    int points_count = int.Parse(info[1]);
+                    int polygons_count = int.Parse(info[2]);
+
+                    for (int i = 3; i < 3 + points_count; i++)
+                    {
+                        double[] coordinates = Array.ConvertAll(info[i].Split(' '), s => double.Parse(s));
+                        points.Add(new Point(coordinates[0], coordinates[1], coordinates[2]));
+                    }
+
+                    for (int i = 3 + points_count; i < 3 + points_count + polygons_count; i++)
+                    {
+                        string[] strings = info[i].Split(" ", StringSplitOptions.RemoveEmptyEntries);
+                        int[] indices = Array.ConvertAll(strings, Int32.Parse);
+                        List<Point> polygon_points = new List<Point>();
+                        foreach (int index in indices)
+                        {
+                            polygon_points.Add(points[index]);
+                        }
+                        polygons.Add(new Polygon(polygon_points));
+                    }
+
+                    currentPolyhedron = new Polyhedron(points, polygons);
+
+                    DrawAxis(g, GetProjection(), Box.Width, Box.Height);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.StackTrace);
+                    DialogResult rezult = MessageBox.Show("Невозможно открыть выбранный файл",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+
+            }
+        }
+
+        private void AddPointGeneratrix_Click(object sender, EventArgs e)
+        {
+            double x = (double)GeneratrixX.Value;
+            double y = (double)GeneratrixY.Value;
+            double z = (double)GeneratrixZ.Value;
+            GeneratrixX.Value = 0;
+            GeneratrixY.Value = 0;
+            GeneratrixZ.Value = 0;
+            GeneratrixListBox.Items.Add(new Point(x, y, z));
+        }
+
+        private void DeletePointGeneratrix_Click(object sender, EventArgs e)
+        {
+            if (GeneratrixListBox.SelectedIndex == -1)
+                return;
+            GeneratrixListBox.Items.RemoveAt(GeneratrixListBox.SelectedIndex);
+        }
+
+        private void Build_Click(object sender, EventArgs e)
+        {
+            Clear();
+            List<Point> points = new List<Point>();
+
+            foreach (var p in GeneratrixListBox.Items)
+                points.Add((Point)p);
+
+            int axis = 0;
+            switch (AxisComboBox.SelectedItem.ToString())
+            {
+                case "OX":
+                    axis = 0;
+                    break;
+                case "OY":
+                    axis = 1;
+                    break;
+                case "OZ":
+                    axis = 2;
+                    break;
+            }
+
+            currentPolyhedron = PolyhedronFactory.RotationFigure(
+                points,
+                axis,
+                (int)Partition.Value
+            );
+
+            DrawAxis(g, GetProjection(), Box.Width, Box.Height);
+        }
+
+        private void FunctionBuild_Click(object sender, EventArgs e)
+        {
+            double x0 = (double)FunctionX0UpDown.Value;
+            double x1 = (double)FunctionX1UpDown.Value;
+            double y0 = (double)FunctionY0UpDown.Value;
+            double y1 = (double)FunctionY1UpDown.Value;
+            double xStep = (double)FunctionXStepUpDown.Value;
+            double yStep = (double)FunctionYStepUpDown.Value;
+            string function = FunctionTextBox.Text;
+
+            Clear();
+
+            currentPolyhedron = PolyhedronFactory.Function(x0, x1, y0, y1, xStep, yStep, function);
+
             DrawAxis(g, GetProjection(), Box.Width, Box.Height);
         }
     }

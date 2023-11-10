@@ -110,17 +110,17 @@ namespace Lab6
 
         public static Transformation ReflectX()
         {
-            return Scale(1.0, -1.0, -1.0);
+            return Scale(-1.0, 1.0, 1.0);
         }
 
         public static Transformation ReflectY()
         {
-            return Scale(-1.0, 1.0, -1.0);
+            return Scale(1.0, -1.0, 1.0);
         }
 
         public static Transformation ReflectZ()
         {
-            return Scale(-1.0, -1.0, 1.0);
+            return Scale(1.0, 1.0, -1.0);
         }
 
         public static Transformation OrthographicXYProjection()

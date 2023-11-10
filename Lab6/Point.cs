@@ -42,5 +42,24 @@ namespace Lab6
             var y = (-Y / coords[3] + 1.0) / 2.0 * height;
             return new Point(x, y, Z);
         }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is Point point &&
+                   EqualityComparer<double[]>.Default.Equals(coords, point.coords) &&
+                   X == point.X &&
+                   Y == point.Y &&
+                   Z == point.Z;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(coords, X, Y, Z);
+        }
+
+        public override string? ToString()
+        {
+            return "X: " + X + " Y: " + Y + " Z: " + Z;
+        }
     }
 }
