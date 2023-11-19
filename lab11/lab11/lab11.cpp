@@ -17,25 +17,48 @@ GLuint VBO;
 struct Vertex {
 	GLfloat x;
 	GLfloat y;
+	GLfloat r;
+	GLfloat g;
+	GLfloat b;
+	GLfloat a;
 };
 
-// Исходный код вершинного шейдера
 const char* VertexShaderSource = R"(
 #version 330 core
 in vec2 coord;
+in vec4 color;
+out vec4 vertexColor;
 void main() {
 	gl_Position = vec4(coord * 0.5, 0.0, 1.0);
+	vertexColor = color;
 }
 )";
 
 // Исходный код фрагментного шейдера
 const char* FragShaderSource = R"(
 #version 330 core
-out vec4 color;
 void main() {
-	color = vec4(1, 1, 0, 1);
+	gl_FragColor = vec4(0.5f, 0.0f, 0.0f, 1.0f);
 }
 )";
+
+const char* FragShaderSource1 = R"(
+#version 330 core
+uniform vec4 color;
+void main() {
+	gl_FragColor = color;
+}
+)";
+
+const char* FragShaderSource2 = R"(
+#version 330 core
+in vec4 vertexColor;
+out vec4 color;
+void main() {
+	color = vertexColor;
+}
+)";
+
 
 void checkOpenGLerror() {
 	int error = glGetError();
@@ -56,72 +79,62 @@ void ShaderLog(unsigned int shader)
 	}
 }
 
+float getRandom() {
+	return static_cast<float>(rand()) / RAND_MAX;
+}
 
 void InitVBO() {
 	glGenBuffers(1, &VBO);
-	// Вершины нашего треугольника
 	Vertex shapes[20] = {
-		{ -1.0f, 1.0f },
-		{ -1.0f, -1.0f },
-		{ 1.0f, -1.0f },
-		{ 1.0f, 1.0f },	
-		{ 0.0f, 0.0f },
+		{ -1.0f, 1.0f, getRandom(), getRandom(), getRandom(), 1.0f},
+		{ -1.0f, -1.0f,  getRandom(), getRandom(), getRandom(), 1.0f },
+		{ 1.0f, -1.0f, getRandom(), getRandom(), getRandom(), 1.0f },
+		{ 1.0f, 1.0f, getRandom(), getRandom(), getRandom(), 1.0f },
+		{ 0.0f, 0.0f, getRandom(), getRandom(), getRandom(), 1.0f },
 	};
 
 	int k = 5;
 	for (int i = 0; i < 10; i++)
 	{
-		shapes[k] = { (float)cos(20.0f * i * 3.14159 / 180.0f), (float)sin(20.0f * i * 3.14159 / 180.0f) };
+		shapes[k] = { (float)cos(20.0f * i * 3.14159 / 180.0f), (float)sin(20.0f * i * 3.14159 / 180.0f), getRandom(), getRandom(), getRandom(), 1.0f };
 		k++;
 	}
 
 	for (int i = 0; i < 5; i++)
 	{
-		shapes[k] = { (float)cos(72.0f * i * 3.14159 / 180.0f), (float)sin(72.0f * i * 3.14159 / 180.0f) };
+		shapes[k] = { (float)cos(72.0f * i * 3.14159 / 180.0f), (float)sin(72.0f * i * 3.14159 / 180.0f), getRandom(), getRandom(), getRandom(), 1.0f };
 		k++;
 	}
 
-	// Передаем вершины в буфер
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(shapes), shapes, GL_STATIC_DRAW);
-	checkOpenGLerror(); //Пример функции есть в лабораторной
-	// Проверка ошибок OpenGL, если есть, то вывод в консоль тип ошибки
+	checkOpenGLerror();
 }
 
-void InitShader() {
-	// Создаем вершинный шейдер
+void InitShader(const char* fragShaderSource) {
 	GLuint vShader = glCreateShader(GL_VERTEX_SHADER);
-	// Передаем исходный код
 	glShaderSource(vShader, 1, &VertexShaderSource, NULL);
-	// Компилируем шейдер
 	glCompileShader(vShader);
-	std::cout << "vertex shader \n";
-	// Функция печати лога шейдера
-	ShaderLog(vShader); //Пример функции есть в лабораторной
-	// Создаем фрагментный шейдер
+	ShaderLog(vShader);
+
 	GLuint fShader = glCreateShader(GL_FRAGMENT_SHADER);
-	// Передаем исходный код
-	glShaderSource(fShader, 1, &FragShaderSource, NULL);
-	// Компилируем шейдер
+	glShaderSource(fShader, 1, &fragShaderSource, NULL);
 	glCompileShader(fShader);
-	std::cout << "fragment shader \n";
-	// Функция печати лога шейдера
 	ShaderLog(fShader);
-	// Создаем программу и прикрепляем шейдеры к ней
+
 	Program = glCreateProgram();
 	glAttachShader(Program, vShader);
 	glAttachShader(Program, fShader);
-	// Линкуем шейдерную программу
 	glLinkProgram(Program);
-	// Проверяем статус сборки
+
 	int link_ok;
 	glGetProgramiv(Program, GL_LINK_STATUS, &link_ok);
 	if (!link_ok) {
 		std::cout << "error attach shaders \n";
 		return;
 	}
-	// Вытягиваем ID атрибута из собранной программы
-	const char* attr_name = "coord"; //имя в шейдере
+
+	const char* attr_name = "coord";
 	Attrib_vertex = glGetAttribLocation(Program, attr_name);
 	if (Attrib_vertex == -1) {
 		std::cout << "could not bind attrib " << attr_name << std::endl;
@@ -131,24 +144,32 @@ void InitShader() {
 }
 
 void Init() {
-	// Шейдеры
-	InitShader();
-	// Вершинный буфер
+	InitShader(FragShaderSource);
 	InitVBO();
 }
 
-void Draw() {
-	glUseProgram(Program); // Устанавливаем шейдерную программу текущей
-	glEnableVertexAttribArray(Attrib_vertex); // Включаем массив атрибутов
-	glBindBuffer(GL_ARRAY_BUFFER, VBO); // Подключаем VBO
-	// Указывая pointer 0 при подключенном буфере, мы указываем что данные в VBO
-	glVertexAttribPointer(Attrib_vertex, 2, GL_FLOAT, GL_FALSE, 0, 0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0); // Отключаем VBO
-	glDrawArrays(GL_QUADS, 0, 4);
-	//glDrawArrays(GL_TRIANGLE_FAN, 5, 11);
-	//glDrawArrays(GL_POLYGON, 15, 5);
-	glDisableVertexAttribArray(Attrib_vertex); // Отключаем массив атрибутов
-	glUseProgram(0); // Отключаем шейдерную программу
+void Draw(int prog, int start, int count) {
+	glUseProgram(Program);
+
+	GLint colorLocation = glGetUniformLocation(Program, "color");
+	if (colorLocation != -1)
+		glUniform4f(colorLocation, 1.0f, 0.0f, 0.0f, 1.0f);
+
+	//glEnableVertexAttribArray(Attrib_vertex);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(2 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(1);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glDrawArrays(prog, start, count);
+
+	glDisableVertexAttribArray(Attrib_vertex);
+	glUseProgram(0);
 	checkOpenGLerror();
 }
 
@@ -176,19 +197,59 @@ void Release() {
 
 
 int main() {
+	srand(static_cast<unsigned int>(time(0)));
 	sf::Window window(sf::VideoMode(600, 600), "My OpenGL window", sf::Style::Default, sf::ContextSettings(24));
 	window.setVerticalSyncEnabled(true);
 	window.setActive(true);
 	glewInit();
 	Init();
+	int t = 0;
+	int k = 0;
 	while (window.isOpen()) {
+
 		sf::Event event;
 		while (window.pollEvent(event)) {
 			if (event.type == sf::Event::Closed) { window.close(); }
 			else if (event.type == sf::Event::Resized) { glViewport(0, 0, event.size.width, event.size.height); }
+			else if (event.type == sf::Event::KeyPressed)
+			{
+				if (event.key.code == sf::Keyboard::Key::Up)
+					t++;
+				else if (event.key.code == sf::Keyboard::Key::Right)
+					k++;
+			}
 		}
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		Draw();
+
+		switch (k % 3)
+		{
+		case 0:
+			InitShader(FragShaderSource);
+			break;
+		case 1:
+			InitShader(FragShaderSource1);
+			break;
+		case 2:
+			InitShader(FragShaderSource2);
+			break;
+		default:
+			break;
+		}
+
+		switch (t % 3)
+		{
+		case 0:
+			Draw(GL_QUADS, 0, 4);
+			break;
+		case 1:
+			Draw(GL_TRIANGLE_FAN, 4, 11);
+			break;
+		case 2:
+			Draw(GL_POLYGON, 15, 5);
+			break;
+		default:
+			break;
+		}
 		window.display();
 	}
 	Release();
