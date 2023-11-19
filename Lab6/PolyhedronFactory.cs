@@ -132,11 +132,11 @@ namespace Lab6
 
         public static Polyhedron Function(double x0, double x1, double y0, double y1, double xStep, double yStep, string function)
         {
+            if (function == null || function == "")
+                return new Polyhedron(new List<Point>(), new List<Polygon>());
+
             var points = new List<Point>();
             var polygons = new List<Polygon>();
-
-            int xIter = (int)((x1 - x0) / xStep);
-            int yIter = (int)((y1 - y0) / yStep);
 
             var prevPolygonPoints = new List<Point>();
             for (double y = y0; y <= y1 + 0.001; y += yStep)
@@ -146,7 +146,6 @@ namespace Lab6
                 prevPolygonPoints.Add(point);
                 points.Add(point);
             }
-            prevPolygonPoints.Reverse();
 
             for (double x = x0 + xStep; x <= x1 + 0.001; x += xStep)
             {
@@ -158,11 +157,20 @@ namespace Lab6
                     points.Add(point);
                     polygonPoints.Add(point);
                 }
-                var t = new List<Point>(polygonPoints);
-                t.Reverse();
-                polygonPoints.AddRange(prevPolygonPoints);
-                polygons.Add(new Polygon(polygonPoints));
-                prevPolygonPoints = t;
+
+                for(int i = 1;  i < polygonPoints.Count; i++)
+                {
+                    var pol = new Polygon(new List<Point>
+                    {
+                        prevPolygonPoints[i],
+                        polygonPoints[i],
+                        polygonPoints[i-1],
+                        prevPolygonPoints[i-1],
+                    }
+                    );
+                    polygons.Add( pol );
+                }
+                prevPolygonPoints = new List<Point>(polygonPoints);
             }
 
             return new Polyhedron(points, polygons);
@@ -170,7 +178,7 @@ namespace Lab6
 
         private static double FunctionValue(double x, double y, string function)
         {
-            Entity expr = function.Replace("x", x.ToString()).Replace("y", y.ToString());
+            Entity expr = function.Replace("x", x.ToString()).Replace("y", y.ToString()).Replace(",", ".");
             return (double)expr.EvalNumerical();
         }
     }
