@@ -2,7 +2,7 @@
 
 namespace lab8
 {
-    public static class Transformations
+    public class Transformations
     {
         public static Matrix RotateX(double angle)
         {

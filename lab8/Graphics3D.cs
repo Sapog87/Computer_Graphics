@@ -139,7 +139,7 @@ namespace lab8
             Vertex right = new Vertex();
             Vertex point = new Vertex();
 
-            for (double y = a.Coordinate.Y; y < c.Coordinate.Y; ++y)
+            for (double y = a.Coordinate.Y; y <= c.Coordinate.Y; ++y)
             {
                 if (y < 0 || y > (Height - 1))
                     continue;
@@ -157,7 +157,7 @@ namespace lab8
                 if (left.Coordinate.X > right.Coordinate.X)
                     Swap(ref left, ref right);
 
-                for (double x = left.Coordinate.X; x < right.Coordinate.X; ++x)
+                for (double x = left.Coordinate.X; x <= right.Coordinate.X; ++x)
                 {
                     if (x < 0 || x > (Width - 1))
                         continue;
@@ -167,7 +167,7 @@ namespace lab8
                     if (point.Coordinate.Z > 2 || point.Coordinate.Z < -2)
                         continue;
 
-                    if (point.Coordinate.Z < ZBuffer[(int)x, (int)y])
+                    if (point.Coordinate.Z <= ZBuffer[(int)x, (int)y])
                     {
                         ZBuffer[(int)x, (int)y] = point.Coordinate.Z;
                         ColorBuffer.SetPixel((int)x, (int)y, point.Color);

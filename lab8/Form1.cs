@@ -2,13 +2,14 @@
 using System;
 using System.Drawing;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 namespace lab8
 {
     public partial class Form1 : Form
     {
         Polyhedron currentPolyhedron;
-        bool without_colors = false;
+        bool without_colors = true;
         private Camera camera;
 
         List<Polyhedron> polyhedrons = new List<Polyhedron>();
@@ -17,7 +18,7 @@ namespace lab8
         public Form1()
         {
             InitializeComponent();
-            currentPolyhedron = new Icosahedron(1);
+            currentPolyhedron = PolyhedronFactory.Hexahedron(1);
             Matrix projection = Transformations.PerspectiveProjection(-0.1, 0.1, -0.1, 0.1, 0.1, 10);
             camera = new Camera(new Point(2, 2, 2), Math.PI / 4, -Math.PI / 4, projection);
             ProjectionComboBox.SelectedItem = ProjectionComboBox.Items[0];
@@ -130,22 +131,22 @@ namespace lab8
             {
                 case "Tetrahedron":
                     {
-                        currentPolyhedron = new Tetrahedron(1);
+                        currentPolyhedron = PolyhedronFactory.Tetrahedron(1);
                         break;
                     }
                 case "Icosahedron":
                     {
-                        currentPolyhedron = new Icosahedron(1);
+                        currentPolyhedron = PolyhedronFactory.Icosahedron(1);
                         break;
                     }
                 case "Hexahedron":
                     {
-                        currentPolyhedron = new Hexahedron(1);
+                        currentPolyhedron = PolyhedronFactory.Hexahedron(1);
                         break;
                     }
                 default:
                     {
-                        currentPolyhedron = new Tetrahedron(1);
+                        currentPolyhedron = PolyhedronFactory.Tetrahedron(1);
                         break;
                     }
             }
@@ -183,13 +184,71 @@ namespace lab8
         {
             without_colors = false;
             moreThanOneObj = true;
-            currentPolyhedron = new Icosahedron(1);
+            currentPolyhedron = PolyhedronFactory.Icosahedron(1);
             currentPolyhedron.Apply(Transformations.Translate(0, 0.20, -0.40));
             polyhedrons.Add(currentPolyhedron);
-            currentPolyhedron = new Tetrahedron(1);
+            currentPolyhedron = PolyhedronFactory.Tetrahedron(1);
             currentPolyhedron.Apply(Transformations.Translate(0, 0, 0.80));
             polyhedrons.Add(currentPolyhedron);
             Box.Invalidate();
+        }
+
+        private void BuildButton_Click(object sender, EventArgs e)
+        {
+            List<Point> points = new List<Point>();
+
+            foreach (var p in GeneratrixListBox.Items)
+                points.Add((Point)p);
+
+            int axis = 0;
+            switch (AxisComboBox.SelectedItem.ToString())
+            {
+                case "OX":
+                    axis = 0;
+                    break;
+                case "OY":
+                    axis = 1;
+                    break;
+                case "OZ":
+                    axis = 2;
+                    break;
+            }
+
+            //currentPolyhedron = PolyhedronFactory.RotationFigure(points, axis, (int)Partition.Value);
+            //Box.Refresh();
+        }
+
+        private void AddButton_Click(object sender, EventArgs e)
+        {
+            double x = (double)GeneratrixX.Value;
+            double y = (double)GeneratrixY.Value;
+            double z = (double)GeneratrixZ.Value;
+            GeneratrixX.Value = 0;
+            GeneratrixY.Value = 0;
+            GeneratrixZ.Value = 0;
+            GeneratrixListBox.Items.Add(new Point(x, y, z));
+        }
+
+        private void DeleteButton_Click(object sender, EventArgs e)
+        {
+            if (GeneratrixListBox.SelectedIndex == -1)
+                return;
+            GeneratrixListBox.Items.RemoveAt(GeneratrixListBox.SelectedIndex);
+        }
+
+        private void FunctionBuild_Click(object sender, EventArgs e)
+        {
+            double x0 = (double)X0NumericUpDown.Value;
+            double x1 = (double)X1NumericUpDown.Value;
+            double y0 = (double)Y0NumericUpDown.Value;
+            double y1 = (double)Y1NumericUpDown.Value;
+            double xStep = (double)XStepNumericUpDown.Value;
+            double yStep = (double)YStepNumericUpDown.Value;
+            string function = FunctionTextBox.Text;
+
+            currentPolyhedron = PolyhedronFactory.Function(x0, x1, y0, y1, xStep, yStep, function);
+
+            Box.Refresh();
         }
     }
 }

@@ -9,8 +9,8 @@ namespace lab8
 {
     public class Polyhedron
     {
-        public Point[] Points { get; set; }
-        public int[][] Polygons { get; set; }
+        public List<Point> Points { get; set; }
+        public List<List<int>> Polygons { get; set; }
         public Point Center
         {
             get
@@ -22,19 +22,17 @@ namespace lab8
                     center.Y += v.Y;
                     center.Z += v.Z;
                 }
-                center.X /= Points.Length;
-                center.Y /= Points.Length;
-                center.Z /= Points.Length;
+                center.X /= Points.Count;
+                center.Y /= Points.Count;
+                center.Z /= Points.Count;
                 return center;
             }
         }
 
-        public Polyhedron(Tuple<Point[], int[][]> data)
-            : this(data.Item1, data.Item2)
-        {
-        }
+        public Polyhedron(Tuple<List<Point>, List<List<int>>> data) : this(data.Item1, data.Item2)
+        { }
 
-        public Polyhedron(Point[] vertices, int[][] verges)
+        public Polyhedron(List<Point> vertices, List<List<int>> verges)
         {
             Points = vertices;
             Polygons = verges;
@@ -74,13 +72,13 @@ namespace lab8
                 index++;
                 indexPointSeq++;
             }
-            Points = vertices.ToArray();
-            Polygons = verges.Select(x => x.ToArray()).ToArray();
+            Points = vertices;
+            Polygons = verges;
         }
 
         public void Apply(Matrix transformation)
         {
-            for (int i = 0; i < Points.Length; ++i)
+            for (int i = 0; i < Points.Count; ++i)
                 Points[i] *= transformation;
         }
 
@@ -94,7 +92,7 @@ namespace lab8
                 int k2 = r.Next(0, 256);
                 int k3 = r.Next(0, 256);
 
-                for (int i = 1; i < polygon.Length - 1; ++i)
+                for (int i = 1; i < polygon.Count - 1; ++i)
                 {
                     var a = new Vertex(Points[polygon[0]], new Point(), Color.FromArgb(k2, k, k3));
                     var b = new Vertex(Points[polygon[i]], new Point(), Color.FromArgb(k2, k, k3));
@@ -139,12 +137,12 @@ namespace lab8
                 if (ni * (-graphics.CamPosition.X) + nj * (-graphics.CamPosition.Y) + nk * (-graphics.CamPosition.Z) + ni * p1.X + nj * p1.Y + nk * p1.Z < 0)
                 {
                     graphics.DrawPoint(Points[verge[0]], Color.Black);
-                    for (int i = 1; i < verge.Length; ++i)
+                    for (int i = 1; i < verge.Count; ++i)
                     {
                         graphics.DrawPoint(Points[verge[i]], Color.Black);
                         graphics.DrawLine(Points[verge[i - 1]], Points[verge[i]]);
                     }
-                    graphics.DrawLine(Points[verge[verge.Length - 1]], Points[verge[0]]);
+                    graphics.DrawLine(Points[verge[verge.Count - 1]], Points[verge[0]]);
                 }
             }
         }
@@ -154,15 +152,15 @@ namespace lab8
             string info = "# File Created: " + DateTime.Now.ToString() + "\r\n";
             foreach (var v in Points)
                 info += "v " + v.X + " " + v.Y + " " + v.Z + "\r\n";
-            info += "# " + Points.Length + " vertices\r\n";
+            info += "# " + Points.Count + " vertices\r\n";
             foreach (var verge in Polygons)
             {
                 info += "f ";
-                for (int i = 0; i < verge.Length; ++i)
+                for (int i = 0; i < verge.Count; ++i)
                     info += (verge[i] + 1) + " ";
                 info += "\r\n";
             }
-            info += "# " + Polygons.Length + " polygons\r\n";
+            info += "# " + Polygons.Count + " polygons\r\n";
             File.WriteAllText(path, info);
         }
     }
