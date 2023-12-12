@@ -17,6 +17,14 @@ namespace GuroLightning
             W = w;
         }
 
+        public Vector(Vector vector)
+        {
+            X = vector.X;
+            Y = vector.Y;
+            Z = vector.Z;
+            W = vector.W;
+        }
+
         public static Vector operator *(double x, Vector v)
         {
             for (int i = 0; i < 3; ++i)
@@ -75,6 +83,7 @@ namespace GuroLightning
             var length = Modul() * W;
             if (0 == length)
                 return new Vector(0, 0, 0);
+
             return new Vector(X / length, Y / length, Z / length, 1);
         }
 
@@ -144,7 +153,7 @@ namespace GuroLightning
 
         public override string ToString()
         {
-            return string.Format("({0}, {1}, {2})", X, Y, Z);
+            return string.Format("{0} {1} {2}", X.ToString("0.0000"), Y.ToString("0.0000"), Z.ToString("0.0000"));
         }
 
         // Модуль
@@ -170,5 +179,6 @@ namespace GuroLightning
         {
             return u + (-v);
         }
+
     }
 }

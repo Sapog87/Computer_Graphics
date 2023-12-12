@@ -23,6 +23,14 @@ namespace GuroLightning
             UVCoordinate = textureCoordinate;
         }
 
+        public Vertex(Vertex vertex)
+        {
+            Coordinate = new Vector(vertex.Coordinate);
+            Color = vertex.Color;
+            Normal = new Vector(vertex.Normal);
+            UVCoordinate = new Vector(vertex.UVCoordinate);
+        }
+
         public Vertex(Vector coordinate, Vector textureCoordinate) : this(coordinate, Color.Black, new Vector(0, 0, 0), textureCoordinate)
         { }
     }

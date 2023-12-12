@@ -65,10 +65,10 @@
             // 
             this.ProjectionBox.FormattingEnabled = true;
             this.ProjectionBox.Items.AddRange(new object[] {
-            "Перспективная",
-            "Ортографическая XY",
-            "Ортографическая XZ",
-            "Ортографическая YZ"});
+            "Perspective",
+            "Orthographic XY",
+            "Orthographic XZ",
+            "Orthographic YZ"});
             this.ProjectionBox.Location = new System.Drawing.Point(1079, 35);
             this.ProjectionBox.Name = "ProjectionBox";
             this.ProjectionBox.Size = new System.Drawing.Size(173, 27);
@@ -79,9 +79,9 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(1103, 9);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(149, 19);
+            this.label1.Size = new System.Drawing.Size(71, 19);
             this.label1.TabIndex = 2;
-            this.label1.Text = "Выберите проекцию";
+            this.label1.Text = "Projection";
             // 
             // ApplyProjection
             // 
@@ -89,7 +89,7 @@
             this.ApplyProjection.Name = "ApplyProjection";
             this.ApplyProjection.Size = new System.Drawing.Size(173, 56);
             this.ApplyProjection.TabIndex = 3;
-            this.ApplyProjection.Text = "Применить";
+            this.ApplyProjection.Text = "Apply";
             this.ApplyProjection.UseVisualStyleBackColor = true;
             this.ApplyProjection.Click += new System.EventHandler(this.ApplyProjection_Click);
             // 
@@ -353,29 +353,29 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(909, 160);
+            this.label5.Location = new System.Drawing.Point(937, 160);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(70, 19);
+            this.label5.Size = new System.Drawing.Size(42, 19);
             this.label5.TabIndex = 16;
-            this.label5.Text = "Масштаб";
+            this.label5.Text = "Scale";
             // 
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(912, 192);
+            this.label6.Location = new System.Drawing.Point(930, 192);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(67, 19);
+            this.label6.Size = new System.Drawing.Size(49, 19);
             this.label6.TabIndex = 17;
-            this.label6.Text = "Поворот";
+            this.label6.Text = "Rotate";
             // 
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(928, 224);
+            this.label7.Location = new System.Drawing.Point(933, 224);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(51, 19);
+            this.label7.Size = new System.Drawing.Size(46, 19);
             this.label7.TabIndex = 18;
-            this.label7.Text = "Сдвиг";
+            this.label7.Text = "Offset";
             // 
             // ApplyAffin
             // 
@@ -383,7 +383,7 @@
             this.ApplyAffin.Name = "ApplyAffin";
             this.ApplyAffin.Size = new System.Drawing.Size(173, 56);
             this.ApplyAffin.TabIndex = 19;
-            this.ApplyAffin.Text = "Применить";
+            this.ApplyAffin.Text = "Apply";
             this.ApplyAffin.UseVisualStyleBackColor = true;
             this.ApplyAffin.Click += new System.EventHandler(this.ApplyAffin_Click);
             // 
@@ -393,7 +393,7 @@
             this.SaveButton.Name = "SaveButton";
             this.SaveButton.Size = new System.Drawing.Size(173, 56);
             this.SaveButton.TabIndex = 20;
-            this.SaveButton.Text = "Сохранить";
+            this.SaveButton.Text = "Save";
             this.SaveButton.UseVisualStyleBackColor = true;
             this.SaveButton.Click += new System.EventHandler(this.SaveButton_Click);
             // 
@@ -403,7 +403,7 @@
             this.LoadButton.Name = "LoadButton";
             this.LoadButton.Size = new System.Drawing.Size(173, 56);
             this.LoadButton.TabIndex = 21;
-            this.LoadButton.Text = "Загрузить";
+            this.LoadButton.Text = "Load";
             this.LoadButton.UseVisualStyleBackColor = true;
             this.LoadButton.Click += new System.EventHandler(this.LoadButton_Click);
             // 
