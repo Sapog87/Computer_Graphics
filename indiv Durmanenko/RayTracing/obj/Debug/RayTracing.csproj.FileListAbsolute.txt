@@ -1,0 +1,10 @@
+D:\Labs\Графика\indiv2\ind2_The_Cornish_Room\RayTracing\bin\Debug\RayTracing.exe.config
+D:\Labs\Графика\indiv2\ind2_The_Cornish_Room\RayTracing\bin\Debug\RayTracing.exe
+D:\Labs\Графика\indiv2\ind2_The_Cornish_Room\RayTracing\bin\Debug\RayTracing.pdb
+D:\Labs\Графика\indiv2\ind2_The_Cornish_Room\RayTracing\obj\Debug\RayTracing.csproj.AssemblyReference.cache
+D:\Labs\Графика\indiv2\ind2_The_Cornish_Room\RayTracing\obj\Debug\RayTracing.Form1.resources
+D:\Labs\Графика\indiv2\ind2_The_Cornish_Room\RayTracing\obj\Debug\RayTracing.Properties.Resources.resources
+D:\Labs\Графика\indiv2\ind2_The_Cornish_Room\RayTracing\obj\Debug\RayTracing.csproj.GenerateResource.cache
+D:\Labs\Графика\indiv2\ind2_The_Cornish_Room\RayTracing\obj\Debug\RayTracing.csproj.CoreCompileInputs.cache
+D:\Labs\Графика\indiv2\ind2_The_Cornish_Room\RayTracing\obj\Debug\RayTracing.exe
+D:\Labs\Графика\indiv2\ind2_The_Cornish_Room\RayTracing\obj\Debug\RayTracing.pdb
