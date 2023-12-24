@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace RayTracing
+﻿namespace RayTracing
 {
     public class Material
     {
@@ -15,13 +9,13 @@ namespace RayTracing
         public float diffuse;       // коэффициент принятия диффузного освещения
         public Point3D color;       // цвет материала
 
-        public Material(float refl, float refr, float amb, float dif, float env = 1)
+        public Material(float reflection, float refraction, float ambient, float diffuse, float environment = 1.0f)
         {
-            reflection = refl;
-            refraction = refr;
-            ambient = amb;
-            diffuse = dif; 
-            environment = env;
+            this.reflection = reflection;
+            this.refraction = refraction;
+            this.environment = environment;
+            this.ambient = ambient;
+            this.diffuse = diffuse;
         }
 
         public Material(Material m)
@@ -33,7 +27,11 @@ namespace RayTracing
             diffuse = m.diffuse;
             color = new Point3D(m.color);
         }
+    }
 
-        public Material() { }
+    public class Materials
+    {
+        public static Material WallDefault = new Material(0.0f, 0.0f, 0.1f, 0.8f);
+        public static Material WallSpecular = new Material(0.8f, 0.0f, 0.0f, 0.0f);
     }
 }

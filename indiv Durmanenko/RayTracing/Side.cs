@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RayTracing
 {
@@ -27,10 +24,10 @@ namespace RayTracing
             Normal = new Point3D(s.Normal);
         }
 
-        public Point3D get_point(int ind)
+        public Point3D getPoint(int index)
         {
             if (host != null)
-                return host.points[points[ind]];
+                return host.points[points[index]];
             return null;
         }
 
@@ -38,8 +35,8 @@ namespace RayTracing
         {
             if (S.points.Count() < 3)
                 return new Point3D(0, 0, 0);
-            Point3D U = S.get_point(1) - S.get_point(0);
-            Point3D V = S.get_point(S.points.Count - 1) - S.get_point(0);
+            Point3D U = S.getPoint(1) - S.getPoint(0);
+            Point3D V = S.getPoint(S.points.Count - 1) - S.getPoint(0);
             Point3D normal = U * V;
             return Point3D.Norm(normal);
         }

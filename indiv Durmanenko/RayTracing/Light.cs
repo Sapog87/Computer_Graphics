@@ -1,30 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RayTracing
 {
-    public class Light: Figure
+    public class Light
     {
-        public Point3D point_light;       // точка, где находится источник света
-        public Point3D color_light;       // цвет источника света
-         
-        public Light(Point3D p, Point3D c)
+        public Point3D lightLocation;
+        public Point3D color;
+
+        public Light(Point3D point, Point3D c)
         {
-            point_light = new Point3D(p);
-            color_light = new Point3D(c);
+            lightLocation = new Point3D(point);
+            color = new Point3D(c);
         }
 
-        // Вычисление локальной модели освещения
-        public Point3D Shade(Point3D hit_point, Point3D normal, Point3D color_obj, float diffuse_coef)
+        public Point3D Shade(Point3D hitPoint, Point3D normal, Point3D objColor, float diffuseCoef)
         {
-            Point3D dir = point_light - hit_point;
-            dir = Point3D.Norm(dir);                // направление луча из источника света в точку удара
+            Point3D direction = lightLocation - hitPoint;
+            direction = Point3D.Norm(direction);                // направление луча из источника света в точку удара
 
-            Point3D diff = diffuse_coef * color_light * Math.Max(Point3D.Scalar(normal, dir), 0);
-            return new Point3D(diff.x * color_obj.x, diff.y * color_obj.y, diff.z * color_obj.z);
+            Point3D diff = diffuseCoef * color * Math.Max(Point3D.Scalar(normal, direction), 0);
+            return new Point3D(diff.x * objColor.x, diff.y * objColor.y, diff.z * objColor.z);
         }
     }
 }

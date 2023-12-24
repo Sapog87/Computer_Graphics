@@ -2,135 +2,18 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RayTracing
 {
-    public class Figure
+    public abstract class Figure
     {
-        public static float EPS = 0.0001f;
-        public List<Point3D> points = new List<Point3D>();  // точки 
-        public List<Side> sides = new List<Side>();        // стороны
-        public bool isRoom = false;                       // является ли данный куб комнатой
+        public const float EPS = 0.001f;
+        public List<Point3D> points = new List<Point3D>();
+        public List<Side> sides = new List<Side>();
 
-        // материалы для стен комнаты
-        public Material front_wall_material;
-        public Material back_wall_material;
-        public Material left_wall_material;
-        public Material right_wall_material;
-        public Material up_wall_material;
-        public Material down_wall_material;
-
-        // материалы фигур
-        public Material figure_material;
-
-        public Figure() { }
-
-        public bool ray_intersects_triangle(Ray r, Point3D p0, Point3D p1, Point3D p2, out float intersect)
-        {
-            intersect = -1;
-
-            Point3D edge1 = p1 - p0;
-            Point3D edge2 = p2 - p0;
-            Point3D h = r.direction * edge2;
-            float a = Point3D.Scalar(edge1, h);
-
-            if (a > -EPS && a < EPS)
-                return false;       // Луч параллелен
-
-            float f = 1.0f / a;
-            Point3D s = r.start - p0;
-            float u = f * Point3D.Scalar(s, h);
-
-            if (u < 0 || u > 1)
-                return false;
-
-            Point3D q = s * edge1;
-            float v = f * Point3D.Scalar(r.direction, q);
-
-            if (v < 0 || u + v > 1)
-                return false;
-            // Находим точку пересечения
-            float t = f * Point3D.Scalar(edge2, q);
-            if (t > EPS)
-            {
-                intersect = t;
-                return true;
-            }
-            else      // Пересечение, но не лучевое
-                return false;
-        }
-
-        // Пересечение луча с фигурой
-        public virtual bool figure_intersection(Ray r, out float intersect, out Point3D normal)
-        {
-            intersect = 0;
-            normal = null;
-            Side sd = null;
-            int fm = -1;         // номер стены комнаты, которую пересек луч
-
-            for (int i = 0; i < sides.Count; ++i)
-            {
-
-                if (sides[i].points.Count == 3)
-                {
-                    if (ray_intersects_triangle(r, sides[i].get_point(0), sides[i].get_point(1), sides[i].get_point(2), out float t) && (intersect == 0 || t < intersect))
-                    {
-                        intersect = t;
-                        sd = sides[i];
-                    }
-                }
-                else if (sides[i].points.Count == 4)
-                {
-                    if (ray_intersects_triangle(r, sides[i].get_point(0), sides[i].get_point(1), sides[i].get_point(3), out float t) && (intersect == 0 || t < intersect))
-                    {
-                        fm = i;
-                        intersect = t;
-                        sd = sides[i];
-                    }
-                    else if (ray_intersects_triangle(r, sides[i].get_point(1), sides[i].get_point(2), sides[i].get_point(3), out t) && (intersect == 0 || t < intersect))
-                    {
-                        fm = i;
-                        intersect = t;
-                        sd = sides[i];
-                    }
-                }
-            }
-
-            if (intersect != 0)
-            {
-                normal = Side.Norm(sd);
-                if (isRoom)
-                    switch (fm)
-                    {
-                        case 0:
-                            figure_material = new Material(back_wall_material);
-                            break;
-                        case 1:
-                            figure_material = new Material(front_wall_material);
-                            break;
-                        case 2:
-                            figure_material = new Material(right_wall_material);
-                            break;
-                        case 3:
-                            figure_material = new Material(left_wall_material);
-                            break;
-                        case 4:
-                            figure_material = new Material(up_wall_material);
-                            break;
-                        case 5:
-                            figure_material = new Material(down_wall_material);
-                            break;
-                        default:
-                            break;
-                    }
-                figure_material.color = new Point3D(sd.drawing_pen.Color.R / 255f, sd.drawing_pen.Color.G / 255f, sd.drawing_pen.Color.B / 255f);
-                return true;
-            }
-
-            return false;
-        }
+        public Material material;
+        public abstract bool Intersects(Ray r, out float intersection, out Point3D normal);
+        public abstract void SetPen(Pen dw);
 
         // ПРЕОБРАЗОВАНИЕ МЕТОДОВ ПОДДЕРЖКИ
         public float[,] get_matrix()
@@ -240,13 +123,6 @@ namespace RayTracing
             ApplyMatrix(apply_offset(get_matrix(), xs, ys, zs));
         }
 
-        public virtual void set_pen(Pen dw)
-        {
-            foreach (Side s in sides)
-                s.drawing_pen = dw;
-
-        }
-
         public void scale_around_center(float xs, float ys, float zs)
         {
             float[,] pnts = get_matrix();
@@ -339,57 +215,6 @@ namespace RayTracing
         {
             float[,] scaleMatrix = new float[,] { { scale_x, 0, 0, 0 }, { 0, scale_y, 0, 0 }, { 0, 0, scale_z, 0 }, { 0, 0, 0, 1 } };
             return multiply_matrix(transform_matrix, scaleMatrix);
-        }
-
-
-        // Параллелепипед
-        public static Figure GetHexahedron(float sz)
-        {
-            // Инициализация итогового рисунка
-            Figure res = new Figure();
-
-            // Добавление точек фигуры в список "точки"
-            res.points.Add(new Point3D(sz / 2, sz / 2, sz / 2)); // 0
-            res.points.Add(new Point3D(-sz / 2, sz / 2, sz / 2)); // 1
-            res.points.Add(new Point3D(-sz / 2, sz / 2, -sz / 2)); // 2
-            res.points.Add(new Point3D(sz / 2, sz / 2, -sz / 2)); //3
-
-            res.points.Add(new Point3D(sz / 2, -sz / 2, sz / 2)); // 4
-            res.points.Add(new Point3D(-sz / 2, -sz / 2, sz / 2)); //5
-            res.points.Add(new Point3D(-sz / 2, -sz / 2, -sz / 2)); // 6
-            res.points.Add(new Point3D(sz / 2, -sz / 2, -sz / 2)); // 7
-
-            // Инициализация стороны фигуры 
-            Side s = new Side(res);
-
-            // Добавление точки стороны в список "точки"
-            s.points.AddRange(new int[] { 3, 2, 1, 0 });
-
-            // Добавление стороны в список "стороны" рисунка
-            res.sides.Add(s);
-
-            // Повторите процесс для других сторон фигуры
-            s = new Side(res);
-            s.points.AddRange(new int[] { 4, 5, 6, 7 });
-            res.sides.Add(s);
-
-            s = new Side(res);
-            s.points.AddRange(new int[] { 2, 6, 5, 1 });
-            res.sides.Add(s);
-
-            s = new Side(res);
-            s.points.AddRange(new int[] { 0, 4, 7, 3 });
-            res.sides.Add(s);
-
-            s = new Side(res);
-            s.points.AddRange(new int[] { 1, 5, 4, 0 });
-            res.sides.Add(s);
-
-            s = new Side(res);
-            s.points.AddRange(new int[] { 2, 3, 7, 6 });
-            res.sides.Add(s);
-
-            return res;
         }
     }
 }

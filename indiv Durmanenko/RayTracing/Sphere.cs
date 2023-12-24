@@ -1,65 +1,57 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RayTracing
 {
-    public class Sphere: Figure
+    public class Sphere : Figure
     {
-        float radius;
+        private readonly float radius;
+        public Pen drawingPen = new Pen(Color.Black);
 
-        public Pen drawing_pen = new Pen(Color.Black);
-
-        public Sphere(Point3D p, float r)
+        public Sphere(Point3D point, float radius)
         {
-            points.Add(p);
-            radius = r;
+            this.radius = radius;
+            points.Add(point);
+        }
+        public override void SetPen(Pen dw)
+        {
+            drawingPen = dw;
         }
 
-        public static bool Ray_sphere_intersection(Ray r, Point3D sphere_pos, float sphere_rad, out float t)
+        private bool RayIntersects(Ray ray, Point3D pos, float radius, out float t)
         {
-            Point3D k = r.start - sphere_pos;
-            float b = Point3D.Scalar(k, r.direction);
-            float c = Point3D.Scalar(k, k) - sphere_rad * sphere_rad;
+            Point3D k = ray.start - pos;
+            float b = Point3D.Scalar(k, ray.direction);
+            float c = Point3D.Scalar(k, k) - radius * radius;
             float d = b * b - c;
             t = 0;
 
-            if (d >= 0)
-            {
-                float sqrtd = (float)Math.Sqrt(d);
-                float t1 = -b + sqrtd;
-                float t2 = -b - sqrtd;
+            if (d < 0)
+                return false;
 
-                float min_t = Math.Min(t1, t2);
-                float max_t = Math.Max(t1, t2);
+            float sqrtd = (float)Math.Sqrt(d);
+            float t1 = -b + sqrtd;
+            float t2 = -b - sqrtd;
 
-                t = (min_t > EPS) ? min_t : max_t;
-                return t > EPS;
-            }
-            return false;
+            float min = Math.Min(t1, t2);
+            float max = Math.Max(t1, t2);
+
+            t = (min > EPS) ? min : max;
+            return t > EPS;
         }
 
-        public override void set_pen(Pen dw)
-        {
-            drawing_pen = dw;
 
-        }
-
-        public override bool figure_intersection(Ray r, out float t, out Point3D normal)
+        public override bool Intersects(Ray r, out float t, out Point3D normal)
         {
             normal = null;
 
-            if (Ray_sphere_intersection(r, points[0], radius, out t) && (t > EPS))
-            {
-                normal = (r.start + r.direction * t) - points[0];
-                normal = Point3D.Norm(normal);
-                figure_material.color = new Point3D(drawing_pen.Color.R / 255f, drawing_pen.Color.G / 255f, drawing_pen.Color.B / 255f);
-                return true;
-            }
-            return false;
+            if (!RayIntersects(r, points[0], radius, out t) || t <= EPS)
+                return false;
+
+            normal = (r.start + r.direction * t) - points[0];
+            normal = Point3D.Norm(normal);
+            material.color = new Point3D(drawingPen.Color.R / 255f, drawingPen.Color.G / 255f, drawingPen.Color.B / 255f);
+            return true;
         }
     }
 }

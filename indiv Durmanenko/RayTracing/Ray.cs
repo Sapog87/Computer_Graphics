@@ -1,53 +1,42 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RayTracing
 {
     public class Ray
     {
-        public Point3D start, direction;
+        public Point3D start;
+        public Point3D direction;
 
-        public Ray(Point3D st, Point3D end)
+        public Ray(Point3D start, Point3D end)
         {
-            start = new Point3D(st);
-            direction = Point3D.Norm(end - st);
+            this.start = new Point3D(start);
+            direction = Point3D.Norm(end - start);
         }
 
-        public Ray() { }
-
-        public Ray(Ray r)
-        {
-            start = r.start;
-            direction = r.direction;
-        }
+        private Ray() { }
 
         // отражение
-        public Ray reflect(Point3D hit_point, Point3D normal)
+        public Ray Reflect(Point3D hitPoint, Point3D normal)
         {
-            Point3D reflect_dir = direction - 2 * normal * Point3D.Scalar(direction, normal);
-            return new Ray(hit_point, hit_point + reflect_dir);
+            Point3D direcion = direction - 2 * normal * Point3D.Scalar(direction, normal);
+            return new Ray(hitPoint, hitPoint + direcion);
         }
 
         // преломление
-        public Ray refract(Point3D hit_point, Point3D normal, float eta)
+        public Ray Refract(Point3D hitPoint, Point3D normal, float eta)
         {
-            Ray res_ray = new Ray();
-            float sclr = Point3D.Scalar(normal, direction);
+            float scalar = Point3D.Scalar(normal, direction);
+            float k = 1 - eta * eta * (1 - scalar * scalar);
 
-            float k = 1 - eta * eta * (1 - sclr * sclr);
-
-            if (k >= 0)
-            {
-                float cos_theta = (float)Math.Sqrt(k);
-                res_ray.start = new Point3D(hit_point);
-                res_ray.direction = Point3D.Norm(eta * direction - (cos_theta + eta * sclr) * normal);
-                return res_ray;
-            }
-            else
+            if (k < 0)
                 return null;
+            float cos = (float)Math.Sqrt(k);
+            Ray ray = new Ray
+            {
+                start = new Point3D(hitPoint),
+                direction = Point3D.Norm(eta * direction - (cos + eta * scalar) * normal)
+            };
+            return ray;
         }
     }
 }
