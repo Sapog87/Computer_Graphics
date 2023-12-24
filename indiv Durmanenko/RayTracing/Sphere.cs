@@ -23,13 +23,13 @@ namespace RayTracing
             Point3D k = ray.start - pos;
             float b = Point3D.Scalar(k, ray.direction);
             float c = Point3D.Scalar(k, k) - radius * radius;
-            float d = b * b - c;
+            float D = b * b - c;
             t = 0;
 
-            if (d < 0)
+            if (D < 0)
                 return false;
 
-            float sqrtd = (float)Math.Sqrt(d);
+            float sqrtd = (float)Math.Sqrt(D);
             float t1 = -b + sqrtd;
             float t2 = -b - sqrtd;
 
@@ -48,8 +48,7 @@ namespace RayTracing
             if (!RayIntersects(r, points[0], radius, out t) || t <= EPS)
                 return false;
 
-            normal = (r.start + r.direction * t) - points[0];
-            normal = Point3D.Norm(normal);
+            normal = Point3D.Norm((r.start + r.direction * t) - points[0]);
             material.color = new Point3D(drawingPen.Color.R / 255f, drawingPen.Color.G / 255f, drawingPen.Color.B / 255f);
             return true;
         }

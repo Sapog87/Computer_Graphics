@@ -16,7 +16,8 @@ namespace RayTracing
         public Point3D Shade(Point3D hitPoint, Point3D normal, Point3D objColor, float diffuseCoef)
         {
             Point3D direction = lightLocation - hitPoint;
-            direction = Point3D.Norm(direction);                // направление луча из источника света в точку удара
+            // направление луча из источника света в точку удара
+            direction = Point3D.Norm(direction);
 
             Point3D diff = diffuseCoef * color * Math.Max(Point3D.Scalar(normal, direction), 0);
             return new Point3D(diff.x * objColor.x, diff.y * objColor.y, diff.z * objColor.z);

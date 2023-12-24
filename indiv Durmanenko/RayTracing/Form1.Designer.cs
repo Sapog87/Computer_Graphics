@@ -162,9 +162,9 @@
             this.twoLightsCB.Location = new System.Drawing.Point(12, 24);
             this.twoLightsCB.Margin = new System.Windows.Forms.Padding(6);
             this.twoLightsCB.Name = "twoLightsCB";
-            this.twoLightsCB.Size = new System.Drawing.Size(87, 17);
+            this.twoLightsCB.Size = new System.Drawing.Size(41, 17);
             this.twoLightsCB.TabIndex = 4;
-            this.twoLightsCB.Text = "2 источника";
+            this.twoLightsCB.Text = "Да";
             this.twoLightsCB.UseVisualStyleBackColor = false;
             // 
             // frontWallSpecularCB
@@ -272,7 +272,7 @@
             this.groupBox4.Size = new System.Drawing.Size(165, 51);
             this.groupBox4.TabIndex = 4;
             this.groupBox4.TabStop = false;
-            this.groupBox4.Text = "Количество света";
+            this.groupBox4.Text = "2 источника света";
             // 
             // Form1
             // 

@@ -14,18 +14,17 @@ namespace RayTracing
         public Material upWallMaterial;
         public Material downWallMaterial;
 
-
-        public Hexahedron(float sz)
+        public Hexahedron(float size)
         {
-            points.Add(new Point3D(sz / 2, sz / 2, sz / 2)); // 0
-            points.Add(new Point3D(-sz / 2, sz / 2, sz / 2)); // 1
-            points.Add(new Point3D(-sz / 2, sz / 2, -sz / 2)); // 2
-            points.Add(new Point3D(sz / 2, sz / 2, -sz / 2)); //3
+            points.Add(new Point3D(size / 2, size / 2, size / 2));
+            points.Add(new Point3D(-size / 2, size / 2, size / 2));
+            points.Add(new Point3D(-size / 2, size / 2, -size / 2));
+            points.Add(new Point3D(size / 2, size / 2, -size / 2));
 
-            points.Add(new Point3D(sz / 2, -sz / 2, sz / 2)); // 4
-            points.Add(new Point3D(-sz / 2, -sz / 2, sz / 2)); //5
-            points.Add(new Point3D(-sz / 2, -sz / 2, -sz / 2)); // 6
-            points.Add(new Point3D(sz / 2, -sz / 2, -sz / 2)); // 7
+            points.Add(new Point3D(size / 2, -size / 2, size / 2));
+            points.Add(new Point3D(-size / 2, -size / 2, size / 2));
+            points.Add(new Point3D(-size / 2, -size / 2, -size / 2));
+            points.Add(new Point3D(size / 2, -size / 2, -size / 2));
 
             Side side = new Side(this);
             side.points.AddRange(new int[] { 3, 2, 1, 0 });
@@ -105,8 +104,8 @@ namespace RayTracing
 
             for (int i = 0; i < sides.Count; i++)
             {
-                if ((RayIntersects(r, sides[i].getPoint(1), sides[i].getPoint(2), sides[i].getPoint(3), out float t) && (intersection == 0 || t < intersection))
-                    || (RayIntersects(r, sides[i].getPoint(0), sides[i].getPoint(1), sides[i].getPoint(3), out t) && (intersection == 0 || t < intersection)))
+                if ((RayIntersects(r, sides[i].GetPoint(1), sides[i].GetPoint(2), sides[i].GetPoint(3), out float t) && (intersection == 0 || t < intersection))
+                    || (RayIntersects(r, sides[i].GetPoint(0), sides[i].GetPoint(1), sides[i].GetPoint(3), out t) && (intersection == 0 || t < intersection)))
                 {
                     sideNumber = i;
                     intersection = t;
@@ -119,6 +118,8 @@ namespace RayTracing
                 return false;
 
             normal = Side.Norm(side);
+
+            // рисуем комнату
             if (isRoom)
             {
                 switch (sideNumber)

@@ -35,10 +35,10 @@ namespace RayTracing
         public void BuildScene()
         {
             Hexahedron room = new Hexahedron(10);
-            upLeft = room.sides[0].getPoint(0);
-            upRight = room.sides[0].getPoint(1);
-            downRight = room.sides[0].getPoint(2);
-            downLeft = room.sides[0].getPoint(3);
+            upLeft = room.sides[0].GetPoint(0);
+            upRight = room.sides[0].GetPoint(1);
+            downRight = room.sides[0].GetPoint(2);
+            downLeft = room.sides[0].GetPoint(3);
 
             Point3D normal = Side.Norm(room.sides[0]);
             Point3D center = (upLeft + upRight + downLeft + downRight) / 4;
@@ -77,24 +77,24 @@ namespace RayTracing
             cube1.offset(-0.5f, 3.0f, -4.0f);
             cube1.rotate_around(60, "CZ");
             cube1.SetPen(new Pen(Color.Green));
-            cube1.material = refractCubeCB.Checked ? new Material(0.0f, 0.8f, 0.0f, 0.0f, 1.03f) : new Material(0.0f, 0.0f, 0.1f, 0.7f);
+            cube1.material = refractCubeCB.Checked ? Materials.FigureRefractable : Materials.FigureDefault;
             figures.Add(cube1);
 
             Hexahedron cube2 = new Hexahedron(2.6f);
             cube2.offset(-2.4f, 1.0f, -3.8f);
             cube2.rotate_around(45, "CZ");
             cube2.SetPen(new Pen(Color.Blue));
-            cube2.material = cubeSpecularCB.Checked ? new Material(0.8f, 0.0f, 0.05f, 0.0f) : new Material(0.0f, 0.0f, 0.1f, 0.8f);
+            cube2.material = cubeSpecularCB.Checked ? Materials.FigureSpecular : Materials.FigureDefault;
             figures.Add(cube2);
 
             Sphere sphere1 = new Sphere(new Point3D(2.5f, 2f, -3.4f), 2.0f);
             sphere1.SetPen(new Pen(Color.Red));
-            sphere1.material = refractSphereCB.Checked ? new Material(0.0f, 0.9f, 0.0f, 0.0f, 1.03f) : new Material(0.0f, 0.0f, 0.1f, 0.9f);
+            sphere1.material = refractSphereCB.Checked ? Materials.FigureRefractable : Materials.FigureDefault;
             figures.Add(sphere1);
 
             Sphere sphere2 = new Sphere(new Point3D(-2.2f, 1.6f, -1.4f), 0.9f);
             sphere2.SetPen(new Pen(Color.Yellow));
-            sphere2.material = sphereSpecularCB.Checked ? new Material(0.0f, 0.9f, 0.0f, 0.0f) : new Material(0.0f, 0.0f, 0.1f, 0.9f);
+            sphere2.material = sphereSpecularCB.Checked ? Materials.FigureSpecular : Materials.FigureDefault;
             figures.Add(sphere2);
         }
 
@@ -173,37 +173,37 @@ namespace RayTracing
             return true;
         }
 
-        public Point3D RayTrace(Ray r, int iter, float env)
+        public Point3D RayTrace(Ray ray, int iteration, float env)
         {
-            if (iter <= 0)
+            if (iteration <= 0)
                 return new Point3D(0, 0, 0);
 
             float t = 0;        // позиция точки пересечения луча с фигурой на луче
             Point3D normal = null;
             Material m = new Material(0f, 0f, 0f, 0f);
-            Point3D res_color = new Point3D(0, 0, 0);
-            bool refract_out_of_figure = false; //  луч преломления выходит из объекта?
+            Point3D resultColor = new Point3D(0, 0, 0);
+            bool refrationOutOfRange = false; //  проверка, что луч преломления выходит из объекта
 
-            foreach (Figure fig in figures)
+            foreach (Figure figure in figures)
             {
-                if (fig.Intersects(r, out float intersect, out Point3D n) && (intersect < t || t == 0))
+                if (figure.Intersects(ray, out float intersect, out Point3D n) && (intersect < t || t == 0))
                 {
                     t = intersect;
                     normal = n;
-                    m = new Material(fig.material);
+                    m = new Material(figure.material);
                 }
             }
 
             if (t == 0)
                 return new Point3D(0, 0, 0);
-            //если угол между нормалью к поверхности объекта и направлением луча положительный, => угол острый, => луч выходит из объекта в среду
-            if (Point3D.Scalar(r.direction, normal) > 0)
+
+            if (Point3D.Scalar(ray.direction, normal) > 0)
             {
                 normal *= -1;
-                refract_out_of_figure = true;
+                refrationOutOfRange = true;
             }
 
-            Point3D hit_point = r.start + r.direction * t;
+            Point3D hit_point = ray.start + ray.direction * t;
 
             foreach (Light l in lights)
             {
@@ -211,33 +211,29 @@ namespace RayTracing
                 amb.x *= m.color.x;
                 amb.y *= m.color.y;
                 amb.z *= m.color.z;
-                res_color += amb;
+                resultColor += amb;
 
                 // диффузное освещение
                 if (IsPointVisible(l.lightLocation, hit_point))
-                    res_color += l.Shade(hit_point, normal, m.color, m.diffuse);
+                    resultColor += l.Shade(hit_point, normal, m.color, m.diffuse);
             }
 
             if (m.reflection > 0)
             {
-                Ray reflected_ray = r.Reflect(hit_point, normal);
-                res_color += m.reflection * RayTrace(reflected_ray, iter - 1, env);
+                Ray reflected_ray = ray.Reflect(hit_point, normal);
+                resultColor += m.reflection * RayTrace(reflected_ray, iteration - 1, env);
             }
 
             if (m.refraction > 0)
             {
-                float eta;                 //коэффициент преломления
-                if (refract_out_of_figure) //луч выходит в среду
-                    eta = m.environment;
-                else
-                    eta = 1 / m.environment;
-
-                Ray refracted_ray = r.Refract(hit_point, normal, eta);
-                if (refracted_ray != null)
-                    res_color += m.refraction * RayTrace(refracted_ray, iter - 1, m.environment);
+                //коэффициент преломления
+                float eta = refrationOutOfRange ? m.environment : 1 / m.environment;
+                Ray refractedRay = ray.Refract(hit_point, normal, eta);
+                if (refractedRay != null)
+                    resultColor += m.refraction * RayTrace(refractedRay, iteration - 1, m.environment);
             }
 
-            return res_color;
+            return resultColor;
         }
     }
 }
