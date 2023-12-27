@@ -93,7 +93,7 @@ namespace RayTracing
             figures.Add(sphere1);
 
             Sphere sphere2 = new Sphere(new Point3D(-2.2f, 1.6f, -1.4f), 0.9f);
-            sphere2.SetPen(new Pen(Color.Yellow));
+            sphere2.SetPen(new Pen(Color.Purple));
             sphere2.material = sphereSpecularCB.Checked ? Materials.FigureSpecular : Materials.FigureDefault;
             figures.Add(sphere2);
         }
@@ -128,8 +128,10 @@ namespace RayTracing
                         start = new Point3D(pixels[i, j])
                     };
                     Point3D clr = RayTrace(ray, 10, 1);
-                    if (clr.x > 1.0f || clr.y > 1.0f || clr.z > 1.0f)
-                        clr = Point3D.Norm(clr);
+                    if (clr.x > 1.0f) clr.x = 1.0f;
+                    if (clr.y > 1.0f) clr.y = 1.0f;
+                    if (clr.z > 1.0f) clr.z = 1.0f;
+
                     colorPixels[i, j] = Color.FromArgb((int)(255 * clr.x), (int)(255 * clr.y), (int)(255 * clr.z));
                 }
             }

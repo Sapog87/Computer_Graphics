@@ -35,7 +35,7 @@
         public static Material WallSpecular = new Material(0.8f, 0.0f, 0.0f, 0.0f);
 
         public static Material FigureDefault = new Material(0.0f, 0.0f, 0.1f, 0.8f);
-        public static Material FigureRefractable = new Material(0.0f, 0.9f, 0.0f, 0.0f);
+        public static Material FigureRefractable = new Material(0.0f, 0.9f, 0.0f, 0.0f, 1.03f);
         public static Material FigureSpecular = new Material(0.9f, 0.0f, 0.0f, 0.0f);
     }
 }
